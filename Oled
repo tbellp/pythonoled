@@ -1,0 +1,84 @@
+# buscar mas info en github Mjrovai/Python4DS
+# import general libraries
+from machine import Pin
+import time
+from time import sleep
+import network
+
+# Wifi Credentials
+WiFi_SSID = ""
+WiFi_PASS = ""
+
+# define pin 0 (LED) as output
+led = Pin(0, Pin.OUT)
+
+# LDR
+from machine import ADC
+
+# Define object
+adc = ADC(0)
+
+# Function to read luminosity
+def readLdr():
+lumPerct = (adc.read()-40)*(10/86) #convert in percent
+  return round(lumPerct)
+  
+# define pin 13 as an input & active an internal Pull-up resistor:
+button = Pin(13, Pin.IN, Pin.PULL_UP)
+
+# Function to read button state:
+def readBut():
+  return button.value()
+
+# Function to read all data:
+def colectData():
+ tep, hum, = readDht()
+ extTemp = readDs()
+ lum = readLdr()
+ butSts = readBut()
+ return temp, hum, extTemp, lum, butSts
+  
+# import library & create object i2c
+from machine import I2C
+i2c = I2C(scl=Pin(5), sda=Pin(4)) #def pins
+
+# import library & create object oled
+import ssd1306
+i2c = I2C(scl=Pin(5), sda=Pin(4))
+oled = ssd1306.SSD1306_I2C(128, 64, i2c, 0x3c) #Check params
+
+# create a function do display all data:
+def displayData(temp, hum, extTemp, lum, ctSts):
+  oled.fill(0)
+  oled.text("Temp:   "+str(temp) + "°C", 0, 4)
+  oled.text("Hum:   "+str(num) + "%", 0, 16)
+  oled.text("ExtTemp:   "+str(ExtTemp) + "°C", 0, 29)
+  oled.text("Lumin:   "+str(lum) + "%", 0, 43)
+  oled.text("Botón:   "+str(butSts), 0, 57)
+  oled.show()
+  
+  # Clear display:
+  def displayClear():
+    oled.fill(0)
+    oled.show()
+    
+  # create a blink function  
+  def blinkLed(num):
+    for i in range(0, num):
+      led.on()
+      sleep(0.5)
+      led.off()
+      sleep(0.5)
+  
+ # MAIN FUNCTION
+ def main():
+ while button.value():
+  led.on()
+  temp, hum, extTemp, lum, butSts = colectData()
+  displayData(temp, hum, extTemp, lum, butSts)
+  led.off()
+  tiem.sleep(PUB_TIME_SEC)
+ blinkLed(3)
+ displayClear()
+ 
+ main()
